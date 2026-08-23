@@ -1,0 +1,83 @@
+@page "/"
+@rendermode InteractiveAuto
+@using Resume.Contracts
+@inject ResumeApiClient Api
+
+<PageTitle>Resume</PageTitle>
+
+<div class="resume-page">
+    @if (_personalInfo is null)
+    {
+        <p>Loading...</p>
+    }
+    else
+    {
+        <ResumeSection Title="Personal Info" InitiallyExpanded="true">
+            <p><strong>@_personalInfo.FullName</strong> — @_personalInfo.Headline</p>
+            <p>@_personalInfo.Summary</p>
+            <p>
+                @_personalInfo.Email
+                @if (_personalInfo.Phone is not null)
+                {
+                    <text> • @_personalInfo.Phone</text>
+                }
+            </p>
+        </ResumeSection>
+
+        <ResumeSection Title="Skills">
+            @foreach (var group in _skills.GroupBy(s => s.Category))
+            {
+                <h4>@group.Key</h4>
+                <ul>
+                    @foreach (var skill in group.OrderBy(s => s.SortOrder))
+                    {
+                        <li>@skill.Name</li>
+                    }
+                </ul>
+            }
+        </ResumeSection>
+
+        <ResumeSection Title="Experience">
+            @foreach (var job in _experience)
+            {
+                <div class="resume-entry">
+                    <h4>@job.JobTitle, @job.Company</h4>
+                    <p>@job.StartDate.ToString("MMM yyyy") - @(job.EndDate?.ToString("MMM yyyy") ?? "Present")</p>
+                    <ul>
+                        @foreach (var highlight in job.Highlights)
+                        {
+                            <li>@highlight</li>
+                        }
+                    </ul>
+                </div>
+            }
+        </ResumeSection>
+
+        <ResumeSection Title="Education">
+            @foreach (var edu in _education)
+            {
+                <div class="resume-entry">
+                    <h4>@edu.Degree, @edu.Institution</h4>
+                    <p>@edu.StartDate.ToString("MMM yyyy") - @(edu.EndDate?.ToString("MMM yyyy") ?? "Present")</p>
+                </div>
+            }
+        </ResumeSection>
+    }
+</div>
+
+@code {
+    private PersonalInfoResponse? _personalInfo;
+    private List<SkillResponse> _skills = [];
+    private List<ExperienceResponse> _experience = [];
+    private List<EducationResponse> _education = [];
+
+    protected override async Task OnInitializedAsync() => await LoadAllAsync();
+
+    private async Task LoadAllAsync()
+    {
+        _personalInfo = await Api.GetPersonalInfoAsync();
+        _skills = await Api.GetSkillsAsync();
+        _experience = await Api.GetExperienceAsync();
+        _education = await Api.GetEducationAsync();
+    }
+}

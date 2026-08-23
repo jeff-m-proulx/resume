@@ -1,0 +1,65 @@
+@using Resume.Contracts
+@inject ResumeApiClient Api
+
+<EditForm Model="_model" OnValidSubmit="Submit">
+    <div><label>Company <InputText @bind-Value="_model.Company" /></label></div>
+    <div><label>Job title <InputText @bind-Value="_model.JobTitle" /></label></div>
+    <div><label>Start date <InputDate @bind-Value="_model.StartDate" /></label></div>
+    <div><label>Highlights (one per line) <InputTextArea @bind-Value="_model.HighlightsText" /></label></div>
+    <button type="submit">@(EditingEntry is null ? "Add" : "Save")</button>
+    @if (_error is not null)
+    {
+        <p class="form-error">@_error</p>
+    }
+</EditForm>
+
+@code {
+    [Parameter] public ExperienceResponse? EditingEntry { get; set; }
+    [Parameter] public EventCallback OnSaved { get; set; }
+
+    private FormModel _model = new();
+    private string? _error;
+
+    protected override void OnParametersSet() => _model = EditingEntry is null
+        ? new FormModel { StartDate = DateTime.Today }
+        : new FormModel
+        {
+            Company = EditingEntry.Company,
+            JobTitle = EditingEntry.JobTitle,
+            StartDate = EditingEntry.StartDate.ToDateTime(TimeOnly.MinValue),
+            HighlightsText = string.Join('\n', EditingEntry.Highlights)
+        };
+
+    private async Task Submit()
+    {
+        var startDate = DateOnly.FromDateTime(_model.StartDate);
+        var highlights = _model.HighlightsText.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        try
+        {
+            if (EditingEntry is null)
+            {
+                await Api.CreateExperienceAsync(new CreateExperienceRequest(_model.Company, _model.JobTitle, null, startDate, null, highlights));
+            }
+            else
+            {
+                await Api.UpdateExperienceAsync(new UpdateExperienceRequest(EditingEntry.Id, _model.Company, _model.JobTitle, EditingEntry.Location, startDate, EditingEntry.EndDate, highlights));
+            }
+
+            _error = null;
+            await OnSaved.InvokeAsync();
+        }
+        catch (HttpRequestException ex)
+        {
+            _error = ex.Message;
+        }
+    }
+
+    private class FormModel
+    {
+        public string Company { get; set; } = "";
+        public string JobTitle { get; set; } = "";
+        public DateTime StartDate { get; set; }
+        public string HighlightsText { get; set; } = "";
+    }
+}

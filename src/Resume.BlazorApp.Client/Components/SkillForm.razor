@@ -1,0 +1,54 @@
+@using Resume.Contracts
+@inject ResumeApiClient Api
+
+<EditForm Model="_model" OnValidSubmit="Submit">
+    <div><label>Category <InputText @bind-Value="_model.Category" /></label></div>
+    <div><label>Name <InputText @bind-Value="_model.Name" /></label></div>
+    <div><label>Sort order <InputNumber @bind-Value="_model.SortOrder" /></label></div>
+    <button type="submit">@(EditingSkill is null ? "Add" : "Save")</button>
+    @if (_error is not null)
+    {
+        <p class="form-error">@_error</p>
+    }
+</EditForm>
+
+@code {
+    [Parameter] public SkillResponse? EditingSkill { get; set; }
+    [Parameter] public EventCallback OnSaved { get; set; }
+
+    private FormModel _model = new();
+    private string? _error;
+
+    protected override void OnParametersSet() => _model = EditingSkill is null
+        ? new FormModel()
+        : new FormModel { Category = EditingSkill.Category, Name = EditingSkill.Name, SortOrder = EditingSkill.SortOrder };
+
+    private async Task Submit()
+    {
+        try
+        {
+            if (EditingSkill is null)
+            {
+                await Api.CreateSkillAsync(new CreateSkillRequest(_model.Category, _model.Name, _model.SortOrder));
+            }
+            else
+            {
+                await Api.UpdateSkillAsync(new UpdateSkillRequest(EditingSkill.Id, _model.Category, _model.Name, _model.SortOrder));
+            }
+
+            _error = null;
+            await OnSaved.InvokeAsync();
+        }
+        catch (HttpRequestException ex)
+        {
+            _error = ex.Message;
+        }
+    }
+
+    private class FormModel
+    {
+        public string Category { get; set; } = "";
+        public string Name { get; set; } = "";
+        public int SortOrder { get; set; }
+    }
+}

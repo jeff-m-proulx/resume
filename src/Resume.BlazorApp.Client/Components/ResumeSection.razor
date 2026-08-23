@@ -1,0 +1,24 @@
+<div class="resume-section">
+    <button class="resume-section__header" @onclick="ToggleExpanded" aria-expanded="@_isExpanded">
+        <span>@Title</span>
+        <span class="resume-section__chevron">@(_isExpanded ? "▾" : "▸")</span>
+    </button>
+    @if (_isExpanded)
+    {
+        <div class="resume-section__content">
+            @ChildContent
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public string Title { get; set; } = "";
+    [Parameter] public bool InitiallyExpanded { get; set; }
+    [Parameter, EditorRequired] public RenderFragment ChildContent { get; set; } = default!;
+
+    private bool _isExpanded;
+
+    protected override void OnInitialized() => _isExpanded = InitiallyExpanded;
+
+    private void ToggleExpanded() => _isExpanded = !_isExpanded;
+}

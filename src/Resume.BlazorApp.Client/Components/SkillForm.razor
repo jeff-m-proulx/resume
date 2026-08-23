@@ -6,6 +6,10 @@
     <div><label>Name <InputText @bind-Value="_model.Name" /></label></div>
     <div><label>Sort order <InputNumber @bind-Value="_model.SortOrder" /></label></div>
     <button type="submit">@(EditingSkill is null ? "Add" : "Save")</button>
+    @if (_error is not null)
+    {
+        <p class="form-error">@_error</p>
+    }
 </EditForm>
 
 @code {
@@ -13,6 +17,7 @@
     [Parameter] public EventCallback OnSaved { get; set; }
 
     private FormModel _model = new();
+    private string? _error;
 
     protected override void OnParametersSet() => _model = EditingSkill is null
         ? new FormModel()
@@ -20,16 +25,24 @@
 
     private async Task Submit()
     {
-        if (EditingSkill is null)
+        try
         {
-            await Api.CreateSkillAsync(new CreateSkillRequest(_model.Category, _model.Name, _model.SortOrder));
-        }
-        else
-        {
-            await Api.UpdateSkillAsync(new UpdateSkillRequest(EditingSkill.Id, _model.Category, _model.Name, _model.SortOrder));
-        }
+            if (EditingSkill is null)
+            {
+                await Api.CreateSkillAsync(new CreateSkillRequest(_model.Category, _model.Name, _model.SortOrder));
+            }
+            else
+            {
+                await Api.UpdateSkillAsync(new UpdateSkillRequest(EditingSkill.Id, _model.Category, _model.Name, _model.SortOrder));
+            }
 
-        await OnSaved.InvokeAsync();
+            _error = null;
+            await OnSaved.InvokeAsync();
+        }
+        catch (HttpRequestException ex)
+        {
+            _error = ex.Message;
+        }
     }
 
     private class FormModel

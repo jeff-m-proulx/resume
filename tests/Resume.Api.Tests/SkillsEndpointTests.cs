@@ -62,4 +62,15 @@ public class SkillsEndpointTests(ApiTestFixture fixture) : IClassFixture<ApiTest
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
+
+    [Fact]
+    public async Task Put_with_empty_name_returns_validation_error()
+    {
+        var client = fixture.CreateClient();
+        var request = new UpdateSkillRequest(SeedData.Skills[0].Id, Category: "Languages", Name: "", SortOrder: 1);
+
+        var response = await client.PutAsJsonAsync($"/api/skills/{request.Id}", request);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
 }

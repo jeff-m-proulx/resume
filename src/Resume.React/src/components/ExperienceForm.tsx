@@ -12,17 +12,23 @@ export function ExperienceForm({ editingEntry, onSaved }: Props) {
   const [jobTitle, setJobTitle] = useState(editingEntry?.jobTitle ?? '')
   const [startDate, setStartDate] = useState(editingEntry?.startDate ?? new Date().toISOString().slice(0, 10))
   const [highlightsText, setHighlightsText] = useState(editingEntry?.highlights.join('\n') ?? '')
+  const [error, setError] = useState<string | null>(null)
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     const highlights = highlightsText.split('\n').map((h) => h.trim()).filter(Boolean)
 
-    if (editingEntry) {
-      await api.updateExperience({ ...editingEntry, company, jobTitle, startDate, highlights })
-    } else {
-      await api.createExperience({ company, jobTitle, location: null, startDate, endDate: null, highlights })
+    try {
+      if (editingEntry) {
+        await api.updateExperience({ ...editingEntry, company, jobTitle, startDate, highlights })
+      } else {
+        await api.createExperience({ company, jobTitle, location: null, startDate, endDate: null, highlights })
+      }
+      setError(null)
+      onSaved()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Save failed')
     }
-    onSaved()
   }
 
   return (
@@ -52,6 +58,7 @@ export function ExperienceForm({ editingEntry, onSaved }: Props) {
         </label>
       </div>
       <button type="submit">{editingEntry ? 'Save' : 'Add'}</button>
+      {error && <p className="form-error">{error}</p>}
     </form>
   )
 }

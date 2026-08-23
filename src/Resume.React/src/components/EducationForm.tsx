@@ -11,16 +11,22 @@ export function EducationForm({ editingEntry, onSaved }: Props) {
   const [institution, setInstitution] = useState(editingEntry?.institution ?? '')
   const [degree, setDegree] = useState(editingEntry?.degree ?? '')
   const [startDate, setStartDate] = useState(editingEntry?.startDate ?? new Date().toISOString().slice(0, 10))
+  const [error, setError] = useState<string | null>(null)
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
 
-    if (editingEntry) {
-      await api.updateEducation({ ...editingEntry, institution, degree, startDate })
-    } else {
-      await api.createEducation({ institution, degree, fieldOfStudy: null, startDate, endDate: null, details: [] })
+    try {
+      if (editingEntry) {
+        await api.updateEducation({ ...editingEntry, institution, degree, startDate })
+      } else {
+        await api.createEducation({ institution, degree, fieldOfStudy: null, startDate, endDate: null, details: [] })
+      }
+      setError(null)
+      onSaved()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Save failed')
     }
-    onSaved()
   }
 
   return (
@@ -44,6 +50,7 @@ export function EducationForm({ editingEntry, onSaved }: Props) {
         </label>
       </div>
       <button type="submit">{editingEntry ? 'Save' : 'Add'}</button>
+      {error && <p className="form-error">{error}</p>}
     </form>
   )
 }

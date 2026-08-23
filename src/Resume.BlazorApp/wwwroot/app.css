@@ -47,7 +47,6 @@ h1:focus {
     border: 1px solid #d0d7de;
     border-radius: 8px;
     margin-bottom: 1rem;
-    overflow: hidden;
 }
 
 .resume-section__header {
@@ -62,6 +61,7 @@ h1:focus {
     background: #f6f8fa;
     border: none;
     border-bottom: 1px solid #d0d7de;
+    border-radius: 8px 8px 0 0;
     font-size: 1.1rem;
     font-weight: 600;
     cursor: pointer;
@@ -70,6 +70,7 @@ h1:focus {
 
 .resume-section__content {
     padding: 1rem;
+    border-radius: 0 0 8px 8px;
 }
 
 .resume-entry {
@@ -90,4 +91,8 @@ h1:focus {
     display: flex;
     justify-content: flex-end;
     margin-bottom: 1rem;
+}
+
+.form-error {
+    color: #c00;
 }

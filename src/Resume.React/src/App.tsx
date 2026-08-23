@@ -86,7 +86,9 @@ function App() {
             </ul>
           </div>
         ))}
-        {adminMode && <SkillForm editingSkill={editingSkill} onSaved={handleSaved} />}
+        {adminMode && (
+          <SkillForm key={editingSkill?.id ?? 'new'} editingSkill={editingSkill} onSaved={handleSaved} />
+        )}
       </ResumeSection>
 
       <ResumeSection title="Experience">
@@ -106,7 +108,13 @@ function App() {
             </ul>
           </div>
         ))}
-        {adminMode && <ExperienceForm editingEntry={editingExperience} onSaved={handleSaved} />}
+        {adminMode && (
+          <ExperienceForm
+            key={editingExperience?.id ?? 'new'}
+            editingEntry={editingExperience}
+            onSaved={handleSaved}
+          />
+        )}
       </ResumeSection>
 
       <ResumeSection title="Education">
@@ -121,7 +129,13 @@ function App() {
             </p>
           </div>
         ))}
-        {adminMode && <EducationForm editingEntry={editingEducation} onSaved={handleSaved} />}
+        {adminMode && (
+          <EducationForm
+            key={editingEducation?.id ?? 'new'}
+            editingEntry={editingEducation}
+            onSaved={handleSaved}
+          />
+        )}
       </ResumeSection>
 
       {banner && <div className="resume-banner">{banner}</div>}

@@ -76,4 +76,18 @@ public class EducationEndpointTests(ApiTestFixture fixture) : IClassFixture<ApiT
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
+
+    [Fact]
+    public async Task Put_with_missing_institution_returns_validation_error()
+    {
+        var client = fixture.CreateClient();
+        var seeded = SeedData.Education[0];
+        var request = new UpdateEducationRequest(
+            seeded.Id, Institution: "", Degree: seeded.Degree, FieldOfStudy: seeded.FieldOfStudy,
+            StartDate: seeded.StartDate, EndDate: seeded.EndDate, Details: seeded.Details);
+
+        var response = await client.PutAsJsonAsync($"/api/education/{request.Id}", request);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
 }

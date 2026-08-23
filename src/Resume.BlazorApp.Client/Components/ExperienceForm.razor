@@ -7,6 +7,10 @@
     <div><label>Start date <InputDate @bind-Value="_model.StartDate" /></label></div>
     <div><label>Highlights (one per line) <InputTextArea @bind-Value="_model.HighlightsText" /></label></div>
     <button type="submit">@(EditingEntry is null ? "Add" : "Save")</button>
+    @if (_error is not null)
+    {
+        <p class="form-error">@_error</p>
+    }
 </EditForm>
 
 @code {
@@ -14,6 +18,7 @@
     [Parameter] public EventCallback OnSaved { get; set; }
 
     private FormModel _model = new();
+    private string? _error;
 
     protected override void OnParametersSet() => _model = EditingEntry is null
         ? new FormModel { StartDate = DateTime.Today }
@@ -30,16 +35,24 @@
         var startDate = DateOnly.FromDateTime(_model.StartDate);
         var highlights = _model.HighlightsText.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
-        if (EditingEntry is null)
+        try
         {
-            await Api.CreateExperienceAsync(new CreateExperienceRequest(_model.Company, _model.JobTitle, null, startDate, null, highlights));
-        }
-        else
-        {
-            await Api.UpdateExperienceAsync(new UpdateExperienceRequest(EditingEntry.Id, _model.Company, _model.JobTitle, EditingEntry.Location, startDate, EditingEntry.EndDate, highlights));
-        }
+            if (EditingEntry is null)
+            {
+                await Api.CreateExperienceAsync(new CreateExperienceRequest(_model.Company, _model.JobTitle, null, startDate, null, highlights));
+            }
+            else
+            {
+                await Api.UpdateExperienceAsync(new UpdateExperienceRequest(EditingEntry.Id, _model.Company, _model.JobTitle, EditingEntry.Location, startDate, EditingEntry.EndDate, highlights));
+            }
 
-        await OnSaved.InvokeAsync();
+            _error = null;
+            await OnSaved.InvokeAsync();
+        }
+        catch (HttpRequestException ex)
+        {
+            _error = ex.Message;
+        }
     }
 
     private class FormModel

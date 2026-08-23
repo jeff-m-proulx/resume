@@ -76,4 +76,18 @@ public class ExperienceEndpointTests(ApiTestFixture fixture) : IClassFixture<Api
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
+
+    [Fact]
+    public async Task Put_with_end_date_before_start_date_returns_validation_error()
+    {
+        var client = fixture.CreateClient();
+        var seeded = SeedData.Experience[0];
+        var request = new UpdateExperienceRequest(
+            seeded.Id, Company: seeded.Company, JobTitle: seeded.JobTitle, Location: seeded.Location,
+            StartDate: new DateOnly(2024, 1, 1), EndDate: new DateOnly(2023, 1, 1), Highlights: seeded.Highlights);
+
+        var response = await client.PutAsJsonAsync($"/api/experience/{request.Id}", request);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
 }

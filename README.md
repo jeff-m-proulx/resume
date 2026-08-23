@@ -13,6 +13,16 @@ changes — the database always reflects the original seeded resume data.
 
 ## Running locally
 
+Aspire's `AddNpmApp` does not install npm packages automatically, and
+`node_modules` is not checked into source control, so install the React
+app's dependencies once before the first run:
+
+```bash
+cd src/Resume.React && npm install && cd ../..
+```
+
+Then start everything via the AppHost:
+
 ```bash
 dotnet run --project src/Resume.AppHost
 ```

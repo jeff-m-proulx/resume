@@ -12,11 +12,17 @@ export function PersonalInfoForm({ personalInfo, onSaved }: Props) {
   const [headline, setHeadline] = useState(personalInfo.headline)
   const [email, setEmail] = useState(personalInfo.email)
   const [summary, setSummary] = useState(personalInfo.summary)
+  const [error, setError] = useState<string | null>(null)
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    await api.updatePersonalInfo({ ...personalInfo, fullName, headline, email, summary })
-    onSaved()
+    try {
+      await api.updatePersonalInfo({ ...personalInfo, fullName, headline, email, summary })
+      setError(null)
+      onSaved()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Save failed')
+    }
   }
 
   return (
@@ -46,6 +52,7 @@ export function PersonalInfoForm({ personalInfo, onSaved }: Props) {
         </label>
       </div>
       <button type="submit">Save</button>
+      {error && <p className="form-error">{error}</p>}
     </form>
   )
 }

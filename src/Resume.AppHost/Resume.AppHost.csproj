@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Resume.Api\Resume.Api.csproj" />
+    <ProjectReference Include="..\Resume.BlazorApp\Resume.BlazorApp.csproj" />
   </ItemGroup>
 
 </Project>

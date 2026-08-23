@@ -6,6 +6,10 @@
 <PageTitle>Resume</PageTitle>
 
 <div class="resume-page">
+    <div class="resume-page__toolbar">
+        <button @onclick="ToggleAdminMode">@(_adminMode ? "Exit Admin Mode" : "Admin Mode")</button>
+    </div>
+
     @if (_personalInfo is null)
     {
         <p>Loading...</p>
@@ -22,6 +26,10 @@
                     <text> • @_personalInfo.Phone</text>
                 }
             </p>
+            @if (_adminMode)
+            {
+                <PersonalInfoForm PersonalInfo="_personalInfo" OnSaved="HandleSaved" />
+            }
         </ResumeSection>
 
         <ResumeSection Title="Skills">
@@ -31,9 +39,19 @@
                 <ul>
                     @foreach (var skill in group.OrderBy(s => s.SortOrder))
                     {
-                        <li>@skill.Name</li>
+                        <li>
+                            @skill.Name
+                            @if (_adminMode)
+                            {
+                                <button @onclick="() => _editingSkill = skill">Edit</button>
+                            }
+                        </li>
                     }
                 </ul>
+            }
+            @if (_adminMode)
+            {
+                <SkillForm EditingSkill="_editingSkill" OnSaved="HandleSkillSaved" />
             }
         </ResumeSection>
 
@@ -41,7 +59,13 @@
             @foreach (var job in _experience)
             {
                 <div class="resume-entry">
-                    <h4>@job.JobTitle, @job.Company</h4>
+                    <h4>
+                        @job.JobTitle, @job.Company
+                        @if (_adminMode)
+                        {
+                            <button @onclick="() => _editingExperience = job">Edit</button>
+                        }
+                    </h4>
                     <p>@job.StartDate.ToString("MMM yyyy") - @(job.EndDate?.ToString("MMM yyyy") ?? "Present")</p>
                     <ul>
                         @foreach (var highlight in job.Highlights)
@@ -51,25 +75,51 @@
                     </ul>
                 </div>
             }
+            @if (_adminMode)
+            {
+                <ExperienceForm EditingEntry="_editingExperience" OnSaved="HandleExperienceSaved" />
+            }
         </ResumeSection>
 
         <ResumeSection Title="Education">
             @foreach (var edu in _education)
             {
                 <div class="resume-entry">
-                    <h4>@edu.Degree, @edu.Institution</h4>
+                    <h4>
+                        @edu.Degree, @edu.Institution
+                        @if (_adminMode)
+                        {
+                            <button @onclick="() => _editingEducation = edu">Edit</button>
+                        }
+                    </h4>
                     <p>@edu.StartDate.ToString("MMM yyyy") - @(edu.EndDate?.ToString("MMM yyyy") ?? "Present")</p>
                 </div>
             }
+            @if (_adminMode)
+            {
+                <EducationForm EditingEntry="_editingEducation" OnSaved="HandleEducationSaved" />
+            }
         </ResumeSection>
+    }
+
+    @if (_banner is not null)
+    {
+        <div class="resume-banner">@_banner</div>
     }
 </div>
 
 @code {
+    private const string SavedBanner = "Saved — but this is a demo; changes are not actually persisted.";
+
     private PersonalInfoResponse? _personalInfo;
     private List<SkillResponse> _skills = [];
     private List<ExperienceResponse> _experience = [];
     private List<EducationResponse> _education = [];
+    private bool _adminMode;
+    private string? _banner;
+    private SkillResponse? _editingSkill;
+    private ExperienceResponse? _editingExperience;
+    private EducationResponse? _editingEducation;
 
     protected override async Task OnInitializedAsync() => await LoadAllAsync();
 
@@ -79,5 +129,34 @@
         _skills = await Api.GetSkillsAsync();
         _experience = await Api.GetExperienceAsync();
         _education = await Api.GetEducationAsync();
+    }
+
+    private void ToggleAdminMode() => _adminMode = !_adminMode;
+
+    private async Task HandleSaved()
+    {
+        _banner = SavedBanner;
+        await LoadAllAsync();
+    }
+
+    private async Task HandleSkillSaved()
+    {
+        _editingSkill = null;
+        _banner = SavedBanner;
+        await LoadAllAsync();
+    }
+
+    private async Task HandleExperienceSaved()
+    {
+        _editingExperience = null;
+        _banner = SavedBanner;
+        await LoadAllAsync();
+    }
+
+    private async Task HandleEducationSaved()
+    {
+        _editingEducation = null;
+        _banner = SavedBanner;
+        await LoadAllAsync();
     }
 }

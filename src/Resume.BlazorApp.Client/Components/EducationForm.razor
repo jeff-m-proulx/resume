@@ -1,0 +1,48 @@
+@using Resume.Contracts
+@inject ResumeApiClient Api
+
+<EditForm Model="_model" OnValidSubmit="Submit">
+    <div><label>Institution <InputText @bind-Value="_model.Institution" /></label></div>
+    <div><label>Degree <InputText @bind-Value="_model.Degree" /></label></div>
+    <div><label>Start date <InputDate @bind-Value="_model.StartDate" /></label></div>
+    <button type="submit">@(EditingEntry is null ? "Add" : "Save")</button>
+</EditForm>
+
+@code {
+    [Parameter] public EducationResponse? EditingEntry { get; set; }
+    [Parameter] public EventCallback OnSaved { get; set; }
+
+    private FormModel _model = new();
+
+    protected override void OnParametersSet() => _model = EditingEntry is null
+        ? new FormModel { StartDate = DateTime.Today }
+        : new FormModel
+        {
+            Institution = EditingEntry.Institution,
+            Degree = EditingEntry.Degree,
+            StartDate = EditingEntry.StartDate.ToDateTime(TimeOnly.MinValue)
+        };
+
+    private async Task Submit()
+    {
+        var startDate = DateOnly.FromDateTime(_model.StartDate);
+
+        if (EditingEntry is null)
+        {
+            await Api.CreateEducationAsync(new CreateEducationRequest(_model.Institution, _model.Degree, null, startDate, null, []));
+        }
+        else
+        {
+            await Api.UpdateEducationAsync(new UpdateEducationRequest(EditingEntry.Id, _model.Institution, _model.Degree, EditingEntry.FieldOfStudy, startDate, EditingEntry.EndDate, EditingEntry.Details));
+        }
+
+        await OnSaved.InvokeAsync();
+    }
+
+    private class FormModel
+    {
+        public string Institution { get; set; } = "";
+        public string Degree { get; set; } = "";
+        public DateTime StartDate { get; set; }
+    }
+}

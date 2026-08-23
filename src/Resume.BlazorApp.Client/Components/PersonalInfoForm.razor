@@ -1,0 +1,41 @@
+@using Resume.Contracts
+@inject ResumeApiClient Api
+
+<EditForm Model="_model" OnValidSubmit="Submit">
+    <div><label>Full name <InputText @bind-Value="_model.FullName" /></label></div>
+    <div><label>Headline <InputText @bind-Value="_model.Headline" /></label></div>
+    <div><label>Email <InputText @bind-Value="_model.Email" /></label></div>
+    <div><label>Summary <InputTextArea @bind-Value="_model.Summary" /></label></div>
+    <button type="submit">Save</button>
+</EditForm>
+
+@code {
+    [Parameter, EditorRequired] public PersonalInfoResponse PersonalInfo { get; set; } = default!;
+    [Parameter] public EventCallback OnSaved { get; set; }
+
+    private FormModel _model = new();
+
+    protected override void OnParametersSet() => _model = new FormModel
+    {
+        FullName = PersonalInfo.FullName,
+        Headline = PersonalInfo.Headline,
+        Email = PersonalInfo.Email,
+        Summary = PersonalInfo.Summary
+    };
+
+    private async Task Submit()
+    {
+        await Api.UpdatePersonalInfoAsync(new UpdatePersonalInfoRequest(
+            _model.FullName, _model.Headline, _model.Email, PersonalInfo.Phone, _model.Summary,
+            PersonalInfo.LinkedInUrl, PersonalInfo.GitHubUrl, PersonalInfo.WebsiteUrl));
+        await OnSaved.InvokeAsync();
+    }
+
+    private class FormModel
+    {
+        public string FullName { get; set; } = "";
+        public string Headline { get; set; } = "";
+        public string Email { get; set; } = "";
+        public string Summary { get; set; } = "";
+    }
+}

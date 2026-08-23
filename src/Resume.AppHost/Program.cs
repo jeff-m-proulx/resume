@@ -1,7 +1,8 @@
 var builder = DistributedApplication.CreateBuilder(args);
 
 var postgres = builder.AddPostgres("postgres")
-    .WithDataVolume();
+    .WithDataVolume()
+    .WithPgAdmin();
 
 var resumedb = postgres.AddDatabase("resumedb");
 
@@ -14,6 +15,7 @@ var blazorApp = builder.AddProject<Projects.Resume_BlazorApp>("blazorapp")
     .WaitFor(api);
 
 var react = builder.AddNpmApp("react", "../Resume.React", "dev")
+    .WithNpmPackageInstallation()
     .WithHttpEndpoint(env: "PORT", port: 5173)
     .WithEnvironment("VITE_API_URL", api.GetEndpoint("https"))
     .WaitFor(api)

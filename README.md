@@ -13,22 +13,21 @@ changes — the database always reflects the original seeded resume data.
 
 ## Running locally
 
-Aspire's `AddNpmApp` does not install npm packages automatically, and
-`node_modules` is not checked into source control, so install the React
-app's dependencies once before the first run:
-
-```bash
-cd src/Resume.React && npm install && cd ../..
-```
-
-Then start everything via the AppHost:
+Start everything via the AppHost:
 
 ```bash
 dotnet run --project src/Resume.AppHost
 ```
 
+The AppHost installs the React app's npm packages automatically on first
+run (via `WithNpmPackageInstallation()`) — no separate `npm install` step
+needed.
+
 Open the Aspire dashboard URL printed in the console to find the running
-resources: `postgres`, `api`, `blazorapp`, and `react`.
+resources: `postgres`, `pgadmin`, `api`, `blazorapp`, and `react`. `pgadmin`
+is a [pgAdmin](https://www.pgadmin.org/) UI pre-configured with a connection
+to the local `postgres` server — open its URL from the dashboard to browse
+`resumedb` directly, no manual connection setup required.
 
 ## Running tests
 

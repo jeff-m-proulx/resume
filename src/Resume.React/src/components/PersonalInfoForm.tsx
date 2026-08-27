@@ -10,6 +10,7 @@ interface Props {
 export function PersonalInfoForm({ personalInfo, onSaved }: Props) {
   const [fullName, setFullName] = useState(personalInfo.fullName)
   const [headline, setHeadline] = useState(personalInfo.headline)
+  const [location, setLocation] = useState(personalInfo.location ?? '')
   const [email, setEmail] = useState(personalInfo.email)
   const [summary, setSummary] = useState(personalInfo.summary)
   const [error, setError] = useState<string | null>(null)
@@ -17,7 +18,7 @@ export function PersonalInfoForm({ personalInfo, onSaved }: Props) {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     try {
-      await api.updatePersonalInfo({ ...personalInfo, fullName, headline, email, summary })
+      await api.updatePersonalInfo({ ...personalInfo, fullName, headline, location: location || null, email, summary })
       setError(null)
       onSaved()
     } catch (err) {
@@ -37,6 +38,12 @@ export function PersonalInfoForm({ personalInfo, onSaved }: Props) {
         <label>
           Headline
           <input value={headline} onChange={(e) => setHeadline(e.target.value)} />
+        </label>
+      </div>
+      <div>
+        <label>
+          Location
+          <input value={location} onChange={(e) => setLocation(e.target.value)} />
         </label>
       </div>
       <div>

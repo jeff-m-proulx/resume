@@ -4,6 +4,7 @@
 <EditForm Model="_model" OnValidSubmit="Submit">
     <div><label>Full name <InputText @bind-Value="_model.FullName" /></label></div>
     <div><label>Headline <InputText @bind-Value="_model.Headline" /></label></div>
+    <div><label>Location <InputText @bind-Value="_model.Location" /></label></div>
     <div><label>Email <InputText @bind-Value="_model.Email" /></label></div>
     <div><label>Summary <InputTextArea @bind-Value="_model.Summary" /></label></div>
     <button type="submit">Save</button>
@@ -24,6 +25,7 @@
     {
         FullName = PersonalInfo.FullName,
         Headline = PersonalInfo.Headline,
+        Location = PersonalInfo.Location ?? "",
         Email = PersonalInfo.Email,
         Summary = PersonalInfo.Summary
     };
@@ -33,7 +35,7 @@
         try
         {
             await Api.UpdatePersonalInfoAsync(new UpdatePersonalInfoRequest(
-                _model.FullName, _model.Headline, _model.Email, PersonalInfo.Phone, _model.Summary,
+                _model.FullName, _model.Headline, _model.Location, _model.Email, PersonalInfo.Phone, _model.Summary,
                 PersonalInfo.LinkedInUrl, PersonalInfo.GitHubUrl, PersonalInfo.WebsiteUrl));
             _error = null;
             await OnSaved.InvokeAsync();
@@ -48,6 +50,7 @@
     {
         public string FullName { get; set; } = "";
         public string Headline { get; set; } = "";
+        public string Location { get; set; } = "";
         public string Email { get; set; } = "";
         public string Summary { get; set; } = "";
     }

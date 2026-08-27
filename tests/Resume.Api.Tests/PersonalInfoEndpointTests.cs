@@ -17,7 +17,7 @@ public class PersonalInfoEndpointTests(ApiTestFixture fixture) : IClassFixture<A
 
         Assert.NotNull(response);
         Assert.Equal(SeedData.PersonalInfoId, response.Id);
-        Assert.Equal("Jordan Rivera", response.FullName);
+        Assert.Equal("Jeffrey M. Proulx", response.FullName);
     }
 
     [Fact]
@@ -27,6 +27,7 @@ public class PersonalInfoEndpointTests(ApiTestFixture fixture) : IClassFixture<A
         var request = new UpdatePersonalInfoRequest(
             FullName: "Changed Name",
             Headline: "Changed Headline",
+            Location: "Changed Location",
             Email: "changed@example.com",
             Phone: "555-9999",
             Summary: "Changed summary.",
@@ -41,7 +42,7 @@ public class PersonalInfoEndpointTests(ApiTestFixture fixture) : IClassFixture<A
         Assert.Equal("Changed Name", updated!.FullName);
 
         var getAfter = await client.GetFromJsonAsync<PersonalInfoResponse>("/api/personal-info");
-        Assert.Equal("Jordan Rivera", getAfter!.FullName);
+        Assert.Equal("Jeffrey M. Proulx", getAfter!.FullName);
     }
 
     [Fact]
@@ -51,6 +52,7 @@ public class PersonalInfoEndpointTests(ApiTestFixture fixture) : IClassFixture<A
         var request = new UpdatePersonalInfoRequest(
             FullName: "",
             Headline: "Headline",
+            Location: null,
             Email: "valid@example.com",
             Phone: null,
             Summary: "Summary.",

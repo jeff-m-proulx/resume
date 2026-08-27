@@ -20,6 +20,10 @@
             <p><strong>@_personalInfo.FullName</strong> — @_personalInfo.Headline</p>
             <p>@_personalInfo.Summary</p>
             <p>
+                @if (_personalInfo.Location is not null)
+                {
+                    <text>@_personalInfo.Location • </text>
+                }
                 @_personalInfo.Email
                 @if (_personalInfo.Phone is not null)
                 {

@@ -5,6 +5,39 @@
   text-align: left;
 }
 
+.resume-header {
+  background: #1f3b57;
+  border-radius: 8px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.resume-header h1 {
+  margin: 0 0 0.25rem;
+  font-size: 2rem;
+  color: #ffffff;
+}
+
+.resume-header__headline {
+  margin: 0 0 0.5rem;
+  font-size: 1.1rem;
+  color: #d9e3ec;
+}
+
+.resume-header__contact {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #d9e3ec;
+}
+
+.resume-header__separator {
+  color: #8fa6bc;
+}
+
+.resume-intro {
+  margin-bottom: 1rem;
+}
+
 .resume-section {
   border: 1px solid #d0d7de;
   border-radius: 8px;

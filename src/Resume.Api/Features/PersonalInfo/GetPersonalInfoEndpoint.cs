@@ -21,6 +21,7 @@ public class GetPersonalInfoEndpoint(ResumeDbContext db) : EndpointWithoutReques
             entity.Id,
             entity.FullName,
             entity.Headline,
+            entity.Location,
             entity.Email,
             entity.Phone,
             entity.Summary,

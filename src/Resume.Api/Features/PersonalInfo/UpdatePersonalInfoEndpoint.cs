@@ -35,6 +35,7 @@ public class UpdatePersonalInfoEndpoint(ResumeDbContext db) : Endpoint<UpdatePer
             existing.Id,
             req.FullName,
             req.Headline,
+            req.Location,
             req.Email,
             req.Phone,
             req.Summary,

@@ -2,6 +2,7 @@ export interface PersonalInfo {
   id: string;
   fullName: string;
   headline: string;
+  location: string | null;
   email: string;
   phone: string | null;
   summary: string;

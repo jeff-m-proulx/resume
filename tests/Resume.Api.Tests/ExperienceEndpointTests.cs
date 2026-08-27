@@ -9,14 +9,14 @@ namespace Resume.Api.Tests;
 public class ExperienceEndpointTests(ApiTestFixture fixture) : IClassFixture<ApiTestFixture>
 {
     [Fact]
-    public async Task Get_returns_both_seeded_experience_entries()
+    public async Task Get_returns_all_seven_seeded_experience_entries()
     {
         var client = fixture.CreateClient();
 
         var experience = await client.GetFromJsonAsync<List<ExperienceResponse>>("/api/experience");
 
         Assert.NotNull(experience);
-        Assert.Equal(2, experience.Count);
+        Assert.Equal(7, experience.Count);
     }
 
     [Fact]
@@ -38,7 +38,7 @@ public class ExperienceEndpointTests(ApiTestFixture fixture) : IClassFixture<Api
         Assert.Equal("Acme Corp", created!.Company);
 
         var experienceAfter = await client.GetFromJsonAsync<List<ExperienceResponse>>("/api/experience");
-        Assert.Equal(2, experienceAfter!.Count);
+        Assert.Equal(7, experienceAfter!.Count);
     }
 
     [Fact]

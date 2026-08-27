@@ -5,6 +5,7 @@ public class PersonalInfo
     public Guid Id { get; set; }
     public required string FullName { get; set; }
     public required string Headline { get; set; }
+    public string? Location { get; set; }
     public required string Email { get; set; }
     public string? Phone { get; set; }
     public required string Summary { get; set; }

@@ -23,35 +23,33 @@ public class DataSeedTests
 
         var personalInfo = Assert.Single(context.PersonalInfo);
         Assert.Equal(SeedData.PersonalInfoId, personalInfo.Id);
-        Assert.Equal("Jordan Rivera", personalInfo.FullName);
+        Assert.Equal("Jeffrey M. Proulx", personalInfo.FullName);
     }
 
     [Fact]
-    public void Seeded_database_contains_ten_skills_across_four_categories()
+    public void Seeded_database_contains_no_skills()
     {
-        using var context = CreateInMemoryContext(nameof(Seeded_database_contains_ten_skills_across_four_categories));
+        using var context = CreateInMemoryContext(nameof(Seeded_database_contains_no_skills));
 
-        var skills = context.Skills.ToList();
-        Assert.Equal(10, skills.Count);
-        Assert.Equal(4, skills.Select(s => s.Category).Distinct().Count());
+        Assert.Empty(context.Skills);
     }
 
     [Fact]
-    public void Seeded_database_contains_two_experience_entries_with_highlights()
+    public void Seeded_database_contains_seven_experience_entries()
     {
-        using var context = CreateInMemoryContext(nameof(Seeded_database_contains_two_experience_entries_with_highlights));
+        using var context = CreateInMemoryContext(nameof(Seeded_database_contains_seven_experience_entries));
 
         var experience = context.Experience.ToList();
-        Assert.Equal(2, experience.Count);
-        Assert.All(experience, e => Assert.NotEmpty(e.Highlights));
+        Assert.Equal(7, experience.Count);
     }
 
     [Fact]
-    public void Seeded_database_contains_one_education_entry()
+    public void Seeded_database_contains_three_education_entries()
     {
-        using var context = CreateInMemoryContext(nameof(Seeded_database_contains_one_education_entry));
+        using var context = CreateInMemoryContext(nameof(Seeded_database_contains_three_education_entries));
 
-        var education = Assert.Single(context.Education);
-        Assert.Equal("State University", education.Institution);
+        var education = context.Education.ToList();
+        Assert.Equal(3, education.Count);
+        Assert.Contains(education, e => e.Institution == "DeVry University");
     }
 }

@@ -4,6 +4,7 @@ public record PersonalInfoResponse(
     Guid Id,
     string FullName,
     string Headline,
+    string? Location,
     string Email,
     string? Phone,
     string Summary,
@@ -14,6 +15,7 @@ public record PersonalInfoResponse(
 public record UpdatePersonalInfoRequest(
     string FullName,
     string Headline,
+    string? Location,
     string Email,
     string? Phone,
     string Summary,

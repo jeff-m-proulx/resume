@@ -9,14 +9,14 @@ namespace Resume.Api.Tests;
 public class EducationEndpointTests(ApiTestFixture fixture) : IClassFixture<ApiTestFixture>
 {
     [Fact]
-    public async Task Get_returns_the_one_seeded_education_entry()
+    public async Task Get_returns_all_three_seeded_education_entries()
     {
         var client = fixture.CreateClient();
 
         var education = await client.GetFromJsonAsync<List<EducationResponse>>("/api/education");
 
         Assert.NotNull(education);
-        Assert.Single(education);
+        Assert.Equal(3, education.Count);
     }
 
     [Fact]
@@ -38,7 +38,7 @@ public class EducationEndpointTests(ApiTestFixture fixture) : IClassFixture<ApiT
         Assert.Equal("Tech Institute", created!.Institution);
 
         var educationAfter = await client.GetFromJsonAsync<List<EducationResponse>>("/api/education");
-        Assert.Single(educationAfter!);
+        Assert.Equal(3, educationAfter!.Count);
     }
 
     [Fact]

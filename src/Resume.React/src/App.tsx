@@ -51,23 +51,31 @@ function App() {
 
   return (
     <div className="resume-page">
+      <header className="resume-header">
+        <h1>{personalInfo.fullName}</h1>
+        <p className="resume-header__headline">{personalInfo.headline}</p>
+        <p className="resume-header__contact">
+          {[personalInfo.location, personalInfo.phone, personalInfo.email]
+            .filter(Boolean)
+            .map((value, index) => (
+              <span key={value}>
+                {index > 0 && <span className="resume-header__separator">   |   </span>}
+                {value}
+              </span>
+            ))}
+        </p>
+      </header>
+
+      <div className="resume-intro">
+        <p>{personalInfo.summary}</p>
+        {adminMode && <PersonalInfoForm personalInfo={personalInfo} onSaved={handleSaved} />}
+      </div>
+
       <div className="resume-page__toolbar">
         <button onClick={() => setAdminMode((prev) => !prev)}>
           {adminMode ? 'Exit Admin Mode' : 'Admin Mode'}
         </button>
       </div>
-
-      <ResumeSection title="Personal Info" initiallyExpanded>
-        <p>
-          <strong>{personalInfo.fullName}</strong> — {personalInfo.headline}
-        </p>
-        <p>{personalInfo.summary}</p>
-        <p>
-          {personalInfo.email}
-          {personalInfo.phone && ` • ${personalInfo.phone}`}
-        </p>
-        {adminMode && <PersonalInfoForm personalInfo={personalInfo} onSaved={handleSaved} />}
-      </ResumeSection>
 
       <ResumeSection title="Skills">
         {Object.entries(skillsByCategory).map(([category, items]) => (

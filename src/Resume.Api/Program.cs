@@ -22,11 +22,16 @@ app.UseCors();
 app.UseFastEndpoints();
 app.UseSwaggerGen();
 
-if (app.Environment.IsDevelopment())
+// Migrations carry the HasData seed, so a freshly provisioned database needs
+// them applied on startup — hosted environments included, not just local dev.
+// The API tests run on the InMemory provider, where Migrate() is not valid.
+using (var scope = app.Services.CreateScope())
 {
-    using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<ResumeDbContext>();
-    db.Database.Migrate();
+    if (db.Database.IsRelational())
+    {
+        db.Database.Migrate();
+    }
 }
 
 app.Run();

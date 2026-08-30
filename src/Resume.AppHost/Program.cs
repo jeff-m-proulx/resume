@@ -1,10 +1,13 @@
 var builder = DistributedApplication.CreateBuilder(args);
 
-var postgres = builder.AddPostgres("postgres")
-    .WithDataVolume()
-    .WithPgAdmin();
-
-var resumedb = postgres.AddDatabase("resumedb");
+// Local runs get the Postgres container; `azd` publish binds "resumedb" to an
+// externally supplied connection string (Neon) instead.
+IResourceBuilder<IResourceWithConnectionString> resumedb = builder.ExecutionContext.IsPublishMode
+    ? builder.AddConnectionString("resumedb")
+    : builder.AddPostgres("postgres")
+        .WithDataVolume()
+        .WithPgAdmin()
+        .AddDatabase("resumedb");
 
 var api = builder.AddProject<Projects.Resume_Api>("api")
     .WithReference(resumedb)

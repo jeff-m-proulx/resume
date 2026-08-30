@@ -1,40 +1,45 @@
 @page "/"
 @rendermode InteractiveAuto
+@implements IAsyncDisposable
 @using Resume.Contracts
 @inject ResumeApiClient Api
+@inject IJSRuntime JS
 
 <PageTitle>Resume</PageTitle>
 
 <div class="resume-page">
-    <div class="resume-page__toolbar">
-        <button @onclick="ToggleAdminMode">@(_adminMode ? "Exit Admin Mode" : "Admin Mode")</button>
-    </div>
-
     @if (_personalInfo is null)
     {
         <p>Loading...</p>
     }
     else
     {
-        <ResumeSection Title="Personal Info" InitiallyExpanded="true">
-            <p><strong>@_personalInfo.FullName</strong> — @_personalInfo.Headline</p>
-            <p>@_personalInfo.Summary</p>
-            <p>
-                @if (_personalInfo.Location is not null)
+        <header class="resume-header">
+            <h1>@_personalInfo.FullName</h1>
+            <p class="resume-header__headline">@_personalInfo.Headline</p>
+            <p class="resume-header__contact">
+                @foreach (var (value, index) in ContactDetails.Select((value, index) => (value, index)))
                 {
-                    <text>@_personalInfo.Location • </text>
-                }
-                @_personalInfo.Email
-                @if (_personalInfo.Phone is not null)
-                {
-                    <text> • @_personalInfo.Phone</text>
+                    if (index > 0)
+                    {
+                        <span class="resume-header__separator"> | </span>
+                    }
+                    <span>@value</span>
                 }
             </p>
+        </header>
+
+        <div class="resume-intro">
+            <p>@_personalInfo.Summary</p>
             @if (_adminMode)
             {
                 <PersonalInfoForm PersonalInfo="_personalInfo" OnSaved="HandleSaved" />
             }
-        </ResumeSection>
+        </div>
+
+        <div class="resume-page__toolbar">
+            <button @onclick="ToggleAdminMode">@(_adminMode ? "Exit Admin Mode" : "Admin Mode")</button>
+        </div>
 
         <ResumeSection Title="Skills">
             @foreach (var group in _skills.GroupBy(s => s.Category))
@@ -124,8 +129,35 @@
     private SkillResponse? _editingSkill;
     private ExperienceResponse? _editingExperience;
     private EducationResponse? _editingEducation;
+    private IJSObjectReference? _stickyHeaderModule;
+    private IJSObjectReference? _stickyHeaderObserver;
+    private bool _stickyHeaderRequested;
+
+    private IEnumerable<string> ContactDetails =>
+        new[] { _personalInfo?.Location, _personalInfo?.Phone, _personalInfo?.Email }
+            .Where(value => !string.IsNullOrWhiteSpace(value))
+            .Select(value => value!);
 
     protected override async Task OnInitializedAsync() => await LoadAllAsync();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        // The header only exists once personal info has loaded, so this waits
+        // for the render that produces it rather than keying off firstRender.
+        // The flag is set before the first await: OnAfterRenderAsync can fire
+        // again while the import is still in flight, which would otherwise
+        // attach a second observer.
+        if (_personalInfo is null || _stickyHeaderRequested)
+        {
+            return;
+        }
+
+        _stickyHeaderRequested = true;
+        _stickyHeaderModule = await JS.InvokeAsync<IJSObjectReference>(
+            "import", "./js/resume-sticky-header.js");
+        _stickyHeaderObserver = await _stickyHeaderModule.InvokeAsync<IJSObjectReference>(
+            "observeHeader");
+    }
 
     private async Task LoadAllAsync()
     {
@@ -162,5 +194,28 @@
         _editingEducation = null;
         _banner = SavedBanner;
         await LoadAllAsync();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_stickyHeaderModule is null)
+        {
+            return;
+        }
+
+        try
+        {
+            if (_stickyHeaderObserver is not null)
+            {
+                await _stickyHeaderObserver.InvokeVoidAsync("disconnect");
+                await _stickyHeaderObserver.DisposeAsync();
+            }
+
+            await _stickyHeaderModule.DisposeAsync();
+        }
+        catch (JSDisconnectedException)
+        {
+            // The circuit is already gone; the observer went with it.
+        }
     }
 }

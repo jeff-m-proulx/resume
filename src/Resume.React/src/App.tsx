@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { api } from './api/client'
 import type { PersonalInfo, Skill, Experience, Education } from './types'
 import { ResumeSection } from './components/ResumeSection'
@@ -20,6 +20,7 @@ function App() {
   const [editingSkill, setEditingSkill] = useState<Skill | null>(null)
   const [editingExperience, setEditingExperience] = useState<Experience | null>(null)
   const [editingEducation, setEditingEducation] = useState<Education | null>(null)
+  const headerRef = useRef<HTMLElement>(null)
 
   const loadAll = async () => {
     setPersonalInfo(await api.getPersonalInfo())
@@ -31,6 +32,29 @@ function App() {
   useEffect(() => {
     loadAll()
   }, [])
+
+  // Section headers dock beneath the sticky page header, so they need its
+  // height as a CSS variable. It changes with viewport width as the contact
+  // line wraps, hence the observer rather than a one-time measurement.
+  useEffect(() => {
+    const header = headerRef.current
+    if (!header) {
+      return
+    }
+
+    const publishHeight = () => {
+      document.documentElement.style.setProperty(
+        '--resume-header-height',
+        `${header.getBoundingClientRect().height}px`,
+      )
+    }
+
+    publishHeight()
+
+    const observer = new ResizeObserver(publishHeight)
+    observer.observe(header)
+    return () => observer.disconnect()
+  }, [personalInfo])
 
   const handleSaved = async () => {
     setEditingSkill(null)
@@ -51,7 +75,7 @@ function App() {
 
   return (
     <div className="resume-page">
-      <header className="resume-header">
+      <header className="resume-header" ref={headerRef}>
         <h1>{personalInfo.fullName}</h1>
         <p className="resume-header__headline">{personalInfo.headline}</p>
         <p className="resume-header__contact">

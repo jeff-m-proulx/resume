@@ -43,6 +43,45 @@ h1:focus {
     padding: 1rem;
 }
 
+/* Docks to the top of the viewport; its measured height is published as
+   --resume-header-height so section headers can stack directly beneath it. */
+.resume-header {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    background: #1f3b57;
+    border-radius: 8px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 6px rgba(15, 35, 55, 0.16);
+}
+
+.resume-header h1 {
+    margin: 0 0 0.25rem;
+    font-size: 2rem;
+    color: #ffffff;
+}
+
+.resume-header__headline {
+    margin: 0 0 0.5rem;
+    font-size: 1.1rem;
+    color: #d9e3ec;
+}
+
+.resume-header__contact {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #d9e3ec;
+}
+
+.resume-header__separator {
+    color: #8fa6bc;
+}
+
+.resume-intro {
+    margin-bottom: 1rem;
+}
+
 .resume-section {
     border: 1px solid #d0d7de;
     border-radius: 8px;
@@ -51,14 +90,15 @@ h1:focus {
 
 .resume-section__header {
     position: sticky;
-    top: 0;
-    z-index: 1;
+    top: var(--resume-header-height, 8.5rem);
+    z-index: 2;
     width: 100%;
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 0.75rem 1rem;
     background: #f6f8fa;
+    color: #1f3b57;
     border: none;
     border-bottom: 1px solid #d0d7de;
     border-radius: 8px 8px 0 0;
@@ -66,6 +106,11 @@ h1:focus {
     font-weight: 600;
     cursor: pointer;
     text-align: left;
+}
+
+.resume-section__header:focus-visible {
+    outline: 2px solid #1f3b57;
+    outline-offset: -2px;
 }
 
 .resume-section__content {
@@ -95,4 +140,19 @@ h1:focus {
 
 .form-error {
     color: #c00;
+}
+
+/* A stuck header eats vertical space, so tighten it on short/narrow screens. */
+@media (max-width: 640px) {
+    .resume-header {
+        padding: 0.875rem 1rem;
+    }
+
+    .resume-header h1 {
+        font-size: 1.5rem;
+    }
+
+    .resume-header__headline {
+        font-size: 1rem;
+    }
 }

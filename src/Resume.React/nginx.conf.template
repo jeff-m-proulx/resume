@@ -1,0 +1,31 @@
+server {
+    listen      80;
+    server_name localhost;
+
+    root  /usr/share/nginx/html;
+    index index.html;
+
+    # Populated by the nginx image's 15-local-resolvers.envsh from resolv.conf.
+    resolver ${NGINX_LOCAL_RESOLVERS} valid=30s;
+
+    # Client-side routes resolve to the SPA shell.
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    # The bundle calls /api/... same-origin; nginx forwards to the API.
+    location /api/ {
+        # Held in a variable so the upstream is resolved per request rather than
+        # at startup. With a literal host, nginx refuses to boot whenever the
+        # API is momentarily unreachable — and Container Apps has no startup
+        # ordering to lean on. A variable with no URI part also forwards the
+        # original /api/... path unchanged, which the endpoints expect.
+        set $api_upstream ${API_URL};
+        proxy_pass $api_upstream;
+
+        proxy_http_version 1.1;
+        proxy_set_header   Host              $proxy_host;
+        proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Proto $scheme;
+    }
+}

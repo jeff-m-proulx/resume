@@ -12,10 +12,8 @@ public class ApiTestFixture : WebApplicationFactory<Program>
 {
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-        // Program.cs runs EF Core migrations when the environment is
-        // Development, which WebApplicationFactory uses by default. Migrate()
-        // is a relational-only operation and throws against the InMemory
-        // provider, so the test host runs as "Testing" instead.
+        // Program.cs skips its startup Migrate() call for non-relational
+        // providers, so the InMemory provider configured below is left alone.
         builder.UseEnvironment("Testing");
         builder.UseSetting("ConnectionStrings:resumedb", "Host=localhost;Database=test;Username=test;Password=test");
 

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { api } from './api/client'
 import type { PersonalInfo, Skill, Experience, Education } from './types'
 import { ResumeSection } from './components/ResumeSection'
+import { ResumeSubsection } from './components/ResumeSubsection'
 import { PersonalInfoForm } from './components/PersonalInfoForm'
 import { SkillForm } from './components/SkillForm'
 import { ExperienceForm } from './components/ExperienceForm'
@@ -9,6 +10,18 @@ import { EducationForm } from './components/EducationForm'
 import './App.css'
 
 const SAVED_BANNER = 'Saved — but this is a demo; changes are not actually persisted.'
+
+const MONTH_YEAR = new Intl.DateTimeFormat('en-US', { month: 'short', year: 'numeric', timeZone: 'UTC' })
+
+// The API hands back plain ISO days. Pinning them to UTC keeps a January 1st
+// from rendering as the previous December for anyone west of Greenwich.
+function formatMonthYear(isoDate: string) {
+  return MONTH_YEAR.format(new Date(`${isoDate.slice(0, 10)}T00:00:00Z`))
+}
+
+function formatRange(startDate: string, endDate: string | null) {
+  return `${formatMonthYear(startDate)} - ${endDate ? formatMonthYear(endDate) : 'Present'}`
+}
 
 function App() {
   const [personalInfo, setPersonalInfo] = useState<PersonalInfo | null>(null)
@@ -102,9 +115,8 @@ function App() {
       </div>
 
       <ResumeSection title="Skills">
-        {Object.entries(skillsByCategory).map(([category, items]) => (
-          <div key={category}>
-            <h4>{category}</h4>
+        {Object.entries(skillsByCategory).map(([category, items], index) => (
+          <ResumeSubsection key={category} title={category} initiallyExpanded={index === 0}>
             <ul>
               {items
                 .slice()
@@ -116,7 +128,7 @@ function App() {
                   </li>
                 ))}
             </ul>
-          </div>
+          </ResumeSubsection>
         ))}
         {adminMode && (
           <SkillForm key={editingSkill?.id ?? 'new'} editingSkill={editingSkill} onSaved={handleSaved} />
@@ -124,21 +136,24 @@ function App() {
       </ResumeSection>
 
       <ResumeSection title="Experience">
-        {experience.map((job) => (
-          <div className="resume-entry" key={job.id}>
-            <h4>
-              {job.jobTitle}, {job.company}
-              {adminMode && <button onClick={() => setEditingExperience(job)}>Edit</button>}
-            </h4>
-            <p>
-              {job.startDate} - {job.endDate ?? 'Present'}
-            </p>
+        {experience.map((job, index) => (
+          <ResumeSubsection
+            key={job.id}
+            title={job.company}
+            meta={`${job.jobTitle} · ${formatRange(job.startDate, job.endDate)}`}
+            initiallyExpanded={index === 0}
+          >
+            {adminMode && (
+              <p>
+                <button onClick={() => setEditingExperience(job)}>Edit</button>
+              </p>
+            )}
             <ul>
-              {job.highlights.map((highlight, index) => (
-                <li key={index}>{highlight}</li>
+              {job.highlights.map((highlight, highlightIndex) => (
+                <li key={highlightIndex}>{highlight}</li>
               ))}
             </ul>
-          </div>
+          </ResumeSubsection>
         ))}
         {adminMode && (
           <ExperienceForm
@@ -150,16 +165,23 @@ function App() {
       </ResumeSection>
 
       <ResumeSection title="Education">
-        {education.map((edu) => (
-          <div className="resume-entry" key={edu.id}>
-            <h4>
-              {edu.degree}, {edu.institution}
-              {adminMode && <button onClick={() => setEditingEducation(edu)}>Edit</button>}
-            </h4>
-            <p>
-              {edu.startDate} - {edu.endDate ?? 'Present'}
-            </p>
-          </div>
+        {education.map((edu, index) => (
+          <ResumeSubsection key={edu.id} title={edu.institution} initiallyExpanded={index === 0}>
+            {adminMode && (
+              <p>
+                <button onClick={() => setEditingEducation(edu)}>Edit</button>
+              </p>
+            )}
+            <p>{[edu.degree, edu.fieldOfStudy].filter(Boolean).join(', ')}</p>
+            <p>{formatRange(edu.startDate, edu.endDate)}</p>
+            {edu.details.length > 0 && (
+              <ul>
+                {edu.details.map((detail, detailIndex) => (
+                  <li key={detailIndex}>{detail}</li>
+                ))}
+              </ul>
+            )}
+          </ResumeSubsection>
         ))}
         {adminMode && (
           <EducationForm

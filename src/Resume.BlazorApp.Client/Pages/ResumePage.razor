@@ -42,21 +42,22 @@
         </div>
 
         <ResumeSection Title="Skills">
-            @foreach (var group in _skills.GroupBy(s => s.Category))
+            @foreach (var (group, index) in _skills.GroupBy(s => s.Category).Select((group, index) => (group, index)))
             {
-                <h4>@group.Key</h4>
-                <ul>
-                    @foreach (var skill in group.OrderBy(s => s.SortOrder))
-                    {
-                        <li>
-                            @skill.Name
-                            @if (_adminMode)
-                            {
-                                <button @onclick="() => _editingSkill = skill">Edit</button>
-                            }
-                        </li>
-                    }
-                </ul>
+                <ResumeSubsection Title="@group.Key" InitiallyExpanded="@(index == 0)">
+                    <ul>
+                        @foreach (var skill in group.OrderBy(s => s.SortOrder))
+                        {
+                            <li>
+                                @skill.Name
+                                @if (_adminMode)
+                                {
+                                    <button @onclick="() => _editingSkill = skill">Edit</button>
+                                }
+                            </li>
+                        }
+                    </ul>
+                </ResumeSubsection>
             }
             @if (_adminMode)
             {
@@ -65,24 +66,22 @@
         </ResumeSection>
 
         <ResumeSection Title="Experience">
-            @foreach (var job in _experience)
+            @foreach (var (job, index) in _experience.Select((job, index) => (job, index)))
             {
-                <div class="resume-entry">
-                    <h4>
-                        @job.JobTitle, @job.Company
-                        @if (_adminMode)
-                        {
-                            <button @onclick="() => _editingExperience = job">Edit</button>
-                        }
-                    </h4>
-                    <p>@job.StartDate.ToString("MMM yyyy") - @(job.EndDate?.ToString("MMM yyyy") ?? "Present")</p>
+                <ResumeSubsection Title="@job.Company"
+                                  Meta="@FormatExperienceMeta(job)"
+                                  InitiallyExpanded="@(index == 0)">
+                    @if (_adminMode)
+                    {
+                        <p><button @onclick="() => _editingExperience = job">Edit</button></p>
+                    }
                     <ul>
                         @foreach (var highlight in job.Highlights)
                         {
                             <li>@highlight</li>
                         }
                     </ul>
-                </div>
+                </ResumeSubsection>
             }
             @if (_adminMode)
             {
@@ -91,18 +90,25 @@
         </ResumeSection>
 
         <ResumeSection Title="Education">
-            @foreach (var edu in _education)
+            @foreach (var (edu, index) in _education.Select((edu, index) => (edu, index)))
             {
-                <div class="resume-entry">
-                    <h4>
-                        @edu.Degree, @edu.Institution
-                        @if (_adminMode)
-                        {
-                            <button @onclick="() => _editingEducation = edu">Edit</button>
-                        }
-                    </h4>
-                    <p>@edu.StartDate.ToString("MMM yyyy") - @(edu.EndDate?.ToString("MMM yyyy") ?? "Present")</p>
-                </div>
+                <ResumeSubsection Title="@edu.Institution" InitiallyExpanded="@(index == 0)">
+                    @if (_adminMode)
+                    {
+                        <p><button @onclick="() => _editingEducation = edu">Edit</button></p>
+                    }
+                    <p>@string.Join(", ", new[] { edu.Degree, edu.FieldOfStudy }.Where(v => !string.IsNullOrWhiteSpace(v)))</p>
+                    <p>@FormatRange(edu.StartDate, edu.EndDate)</p>
+                    @if (edu.Details.Length > 0)
+                    {
+                        <ul>
+                            @foreach (var detail in edu.Details)
+                            {
+                                <li>@detail</li>
+                            }
+                        </ul>
+                    }
+                </ResumeSubsection>
             }
             @if (_adminMode)
             {
@@ -132,6 +138,12 @@
     private IJSObjectReference? _stickyHeaderModule;
     private IJSObjectReference? _stickyHeaderObserver;
     private bool _stickyHeaderRequested;
+
+    private static string FormatRange(DateOnly startDate, DateOnly? endDate) =>
+        $"{startDate:MMM yyyy} - {(endDate?.ToString("MMM yyyy") ?? "Present")}";
+
+    private static string FormatExperienceMeta(ExperienceResponse job) =>
+        $"{job.JobTitle} · {FormatRange(job.StartDate, job.EndDate)}";
 
     private IEnumerable<string> ContactDetails =>
         new[] { _personalInfo?.Location, _personalInfo?.Phone, _personalInfo?.Email }

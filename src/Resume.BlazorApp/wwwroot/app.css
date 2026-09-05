@@ -205,6 +205,113 @@ h1:focus {
     color: #c00;
 }
 
+/* Bookends the sticky header: same blue, same radius, but in the page flow
+   rather than pinned -- a second fixed band leaves too little room to read on
+   a short viewport. The wrapper repeats .resume-page's width and side padding
+   so the footer's edges line up with the content above it. */
+.resume-footer-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 1rem 1rem;
+}
+
+.resume-footer {
+    background: #1f3b57;
+    border-radius: 8px;
+    padding: 1.5rem 1rem;
+    margin-top: 1.5rem;
+    text-align: center;
+}
+
+/* A flex row with a gap, holding one link today: a second or third needs no
+   layout change. */
+.resume-footer__links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.5rem;
+}
+
+.resume-footer__link {
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 1rem;
+}
+
+.resume-footer__link:hover,
+.resume-footer__link:focus-visible {
+    text-decoration: underline;
+}
+
+.resume-footer__link:focus-visible {
+    outline: 2px solid #ffffff;
+    outline-offset: 2px;
+}
+
+.resume-footer__copyright {
+    margin: 1.75rem 0 0;
+    font-size: 0.8rem;
+    color: #d9e3ec;
+}
+
+.about-page h1 {
+    margin: 0 0 0.5rem;
+    font-size: 2rem;
+    color: #1f3b57;
+}
+
+.about-page__intro {
+    margin: 0 0 1rem;
+}
+
+.about-page__back {
+    display: inline-block;
+    margin-bottom: 1.5rem;
+    color: #1f3b57;
+}
+
+.about-section {
+    margin-bottom: 1.5rem;
+}
+
+.about-section h2 {
+    margin: 0 0 0.5rem;
+    font-size: 1.15rem;
+    color: #1f3b57;
+}
+
+.about-section ul {
+    margin: 0;
+    padding-left: 1.25rem;
+}
+
+.about-section li {
+    margin-bottom: 0.35rem;
+}
+
+/* Amber, matching the demo banner, so nobody reads the outstanding work as a
+   description of running infrastructure. */
+.about-section--planned {
+    background: #fff8c5;
+    border: 1px solid #d4a72c;
+    border-radius: 6px;
+    padding: 1rem;
+}
+
+.about-section--planned p {
+    margin: 0 0 0.75rem;
+}
+
+.about-page__switch {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #d0d7de;
+}
+
+.about-page__switch p {
+    margin: 0 0 0.5rem;
+}
+
 /* A stuck header eats vertical space, so tighten it on short/narrow screens. */
 @media (max-width: 640px) {
     .resume-header {

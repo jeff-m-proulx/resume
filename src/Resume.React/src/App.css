@@ -80,8 +80,71 @@
   border-radius: 0 0 8px 8px;
 }
 
-.resume-entry {
-  margin-bottom: 1rem;
+.resume-subsection {
+  border: 1px solid #e2e8ef;
+  border-radius: 6px;
+  margin-bottom: 0.75rem;
+  background: #ffffff;
+}
+
+.resume-subsection:last-child {
+  margin-bottom: 0;
+}
+
+.resume-subsection__header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 0.6rem 0.85rem;
+  background: #fcfdfe;
+  color: #1f3b57;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+}
+
+.resume-subsection__header--expanded {
+  border-bottom: 1px solid #e2e8ef;
+  border-radius: 6px 6px 0 0;
+}
+
+.resume-subsection__header:focus-visible {
+  outline: 2px solid #1f3b57;
+  outline-offset: -2px;
+}
+
+.resume-subsection__label {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.15rem 0.5rem;
+}
+
+.resume-subsection__meta {
+  font-weight: 400;
+  font-size: 0.9rem;
+  color: #57687a;
+}
+
+.resume-subsection__chevron {
+  flex-shrink: 0;
+}
+
+.resume-subsection__content {
+  padding: 0.75rem 0.85rem;
+}
+
+.resume-subsection__content > :first-child {
+  margin-top: 0;
+}
+
+.resume-subsection__content > :last-child {
+  margin-bottom: 0;
 }
 
 .resume-banner {

@@ -1,0 +1,33 @@
+<div class="resume-subsection">
+    <button class="resume-subsection__header @(_isExpanded ? "resume-subsection__header--expanded" : "")"
+            @onclick="ToggleExpanded"
+            aria-expanded="@(_isExpanded ? "true" : "false")">
+        <span class="resume-subsection__label">
+            <span class="resume-subsection__title">@Title</span>
+            @if (!string.IsNullOrWhiteSpace(Meta))
+            {
+                <span class="resume-subsection__meta">@Meta</span>
+            }
+        </span>
+        <span class="resume-subsection__chevron">@(_isExpanded ? "▾" : "▸")</span>
+    </button>
+    @if (_isExpanded)
+    {
+        <div class="resume-subsection__content">
+            @ChildContent
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public string Title { get; set; } = "";
+    [Parameter] public string? Meta { get; set; }
+    [Parameter] public bool InitiallyExpanded { get; set; }
+    [Parameter, EditorRequired] public RenderFragment ChildContent { get; set; } = default!;
+
+    private bool _isExpanded;
+
+    protected override void OnInitialized() => _isExpanded = InitiallyExpanded;
+
+    private void ToggleExpanded() => _isExpanded = !_isExpanded;
+}

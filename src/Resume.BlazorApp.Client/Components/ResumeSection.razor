@@ -1,5 +1,5 @@
 <div class="resume-section">
-    <button class="resume-section__header" @onclick="ToggleExpanded" aria-expanded="@_isExpanded">
+    <button class="resume-section__header" @onclick="ToggleExpanded" aria-expanded="@(_isExpanded ? "true" : "false")">
         <span>@Title</span>
         <span class="resume-section__chevron">@(_isExpanded ? "▾" : "▸")</span>
     </button>

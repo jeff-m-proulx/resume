@@ -31,6 +31,9 @@ if (builder.ExecutionContext.IsPublishMode)
     // ships without an API host compiled into it.
     react.WithHttpEndpoint(targetPort: 80)
         .WithEnvironment("API_URL", api.GetEndpoint("https"))
+        // Same reasoning for the Blazor app's address: it feeds the nginx
+        // template's /switch-ui redirect rather than the bundle.
+        .WithEnvironment("BLAZOR_URL", blazorApp.GetEndpoint("https"))
         .WithEnvironment("NODE_ENV", "production")
         .PublishAsDockerFile();
 }
@@ -40,11 +43,18 @@ else
     // VITE_API_URL is read as the dev server starts.
     react.WithNpmPackageInstallation()
         .WithHttpEndpoint(env: "PORT", port: 5173)
-        .WithEnvironment("VITE_API_URL", api.GetEndpoint("https"));
+        .WithEnvironment("VITE_API_URL", api.GetEndpoint("https"))
+        // There is no nginx in dev, so the bundle reads this one directly.
+        .WithEnvironment("VITE_BLAZOR_URL", blazorApp.GetEndpoint("https"));
 }
 
 // Marked after the branch: WithExternalHttpEndpoints only flags endpoints that
 // already exist, and each branch adds its own.
 react.WithExternalHttpEndpoints();
+
+// The Blazor host resolves this per request in its /switch-ui endpoint, so
+// unlike the React side it needs no container-start substitution. Set after
+// the branch because react's endpoint is created inside it.
+blazorApp.WithEnvironment("ReactAppUrl", react.GetEndpoint("http"));
 
 builder.Build().Run();

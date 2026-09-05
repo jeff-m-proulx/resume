@@ -9,7 +9,8 @@ changes — the database always reflects the original seeded resume data.
 
 - .NET 10 SDK
 - Node.js 22+
-- Docker Desktop (for the Postgres container)
+- Docker Desktop (for the Postgres container, and to build the React image
+  when deploying)
 
 ## Running locally
 
@@ -28,6 +29,51 @@ resources: `postgres`, `pgadmin`, `api`, `blazorapp`, and `react`. `pgadmin`
 is a [pgAdmin](https://www.pgadmin.org/) UI pre-configured with a connection
 to the local `postgres` server — open its URL from the dashboard to browse
 `resumedb` directly, no manual connection setup required.
+
+## Deploying to Azure
+
+Deployment goes through the [Azure Developer CLI](https://aka.ms/azd) (`azd`),
+which reads `azure.yaml` and publishes the Aspire app to Azure Container Apps.
+
+Prerequisites: `azd` (`winget install microsoft.azd`), an Azure subscription,
+and a Postgres connection string. In publish mode the AppHost does not
+provision a database — `resumedb` becomes an external connection string, so
+point it at a managed Postgres such as [Neon](https://neon.tech).
+
+```bash
+azd auth login
+azd up
+```
+
+`azd up` prompts for a subscription, a region, and the `resumedb` connection
+string (stored as a secret in the azd environment, never in the repo). It then
+provisions the container environment and deploys three container apps:
+
+| App | Ingress | Notes |
+| --- | --- | --- |
+| `api` | public | Applies EF migrations on startup, which carry the seed data |
+| `blazorapp` | public | Server-rendered site; proxies `/api` to `api` via YARP |
+| `react` | public | Static bundle behind nginx, which proxies `/api/` to `api` |
+
+Re-deploy code without re-provisioning with `azd deploy`; tear the whole
+environment down with `azd down`.
+
+### How the React app is built for Azure
+
+Locally the `react` resource runs the Vite dev server. In publish mode the
+AppHost switches it to `PublishAsDockerFile()`, building
+`src/Resume.React/Dockerfile` — a Vite production build served by nginx.
+
+Vite inlines `import.meta.env.*` at build time, but the API's URL is not known
+until after provisioning. Rather than bake it in, the deployed bundle calls
+`/api/...` on its own origin and nginx proxies those requests onward, using the
+`API_URL` environment variable the AppHost supplies at container start.
+
+### Costs
+
+Container Apps' monthly free grant covers a low-traffic site, and the apps
+scale to zero. The container registry (~$5/month) is the main standing cost;
+Neon's free tier covers the database.
 
 ## Running tests
 

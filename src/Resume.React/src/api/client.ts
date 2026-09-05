@@ -1,6 +1,9 @@
 import type { PersonalInfo, Skill, Experience, Education } from '../types'
 
-const API_BASE_URL = import.meta.env.VITE_API_URL as string
+// Dev sets VITE_API_URL to the API's endpoint and calls it cross-origin. In
+// the deployed container it is unset, so requests go same-origin to /api/...
+// and nginx proxies them — no API host is baked into the bundle at build time.
+const API_BASE_URL = (import.meta.env.VITE_API_URL as string | undefined) ?? ''
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`, {

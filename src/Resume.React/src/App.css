@@ -260,10 +260,18 @@
 /* Amber, matching the demo banner, so nobody reads the outstanding work as a
    description of running infrastructure. */
 .about-section--planned {
+  /* Keeps its light background in both themes, so its text colour is set
+     explicitly here rather than inherited -- the dark-mode override below
+     would otherwise leave this panel's heading almost invisible on amber. */
   background: #fff8c5;
   border: 1px solid #d4a72c;
   border-radius: 6px;
   padding: 1rem;
+  color: #24292f;
+}
+
+.about-section--planned h2 {
+  color: #1f3b57;
 }
 
 .about-section--planned p {

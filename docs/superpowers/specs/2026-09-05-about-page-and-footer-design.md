@@ -330,8 +330,12 @@ references survive publish. Make the `Program.cs` change alone and generate the
 publish manifest:
 
 ```bash
-dotnet run --project src/Resume.AppHost -- --publisher manifest --output-path manifest.json
+dotnet run --project src/Resume.AppHost -- \
+  --operation publish --publisher manifest --output-path manifest.json
 ```
+
+`--operation publish` is required; without it the AppHost starts normally and
+writes no manifest.
 
 The manifest must contain both `BLAZOR_URL` on `react` and `ReactAppUrl` on
 `blazorapp`, each as a resolved endpoint placeholder, with no cycle error. If

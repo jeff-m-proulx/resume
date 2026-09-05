@@ -18,6 +18,20 @@ function App() {
     return () => window.removeEventListener('hashchange', handleHashChange)
   }, [])
 
+  // The Blazor app gets this from <FocusOnNavigate Selector="h1" />. Without it,
+  // clicking the footer link at the bottom of a long resume leaves the visitor
+  // scrolled to the bottom of the shorter About page, and a screen reader never
+  // learns the view changed.
+  useEffect(() => {
+    window.scrollTo(0, 0)
+
+    const heading = document.querySelector('h1')
+    if (heading) {
+      heading.tabIndex = -1
+      heading.focus()
+    }
+  }, [route])
+
   return (
     <>
       {route === ABOUT_ROUTE ? <About /> : <ResumePage />}

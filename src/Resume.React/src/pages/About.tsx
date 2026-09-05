@@ -24,8 +24,8 @@ export function About() {
           <li>ASP.NET Core</li>
           <li>FastEndpoints, organized as a vertical slice per feature</li>
           <li>
-            Entity Framework Core with PostgreSQL; migrations apply on startup in hosted
-            environments and carry the seed data
+            Entity Framework Core with PostgreSQL; migrations apply on startup and carry the seed
+            data
           </li>
           <li>xUnit endpoint tests</li>
         </ul>

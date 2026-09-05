@@ -28,4 +28,12 @@ server {
         proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
         proxy_set_header   X-Forwarded-Proto $scheme;
     }
+
+    # The About page's link to the Blazor UI. Kept out of the bundle for the
+    # same reason as the API host: the image is built long before provisioning
+    # knows the Blazor app's address, so the AppHost supplies BLAZOR_URL at
+    # container start and the redirect happens here.
+    location = /switch-ui {
+        return 302 ${BLAZOR_URL};
+    }
 }

@@ -69,6 +69,13 @@ until after provisioning. Rather than bake it in, the deployed bundle calls
 `/api/...` on its own origin and nginx proxies those requests onward, using the
 `API_URL` environment variable the AppHost supplies at container start.
 
+The About page's link to the other UI works the same way. Each site links to
+`/switch-ui` on its own origin and redirects from there — a minimal API
+endpoint on the Blazor host, an nginx `return 302` in the React container —
+so neither frontend needs the other's address at build time. The AppHost
+supplies both addresses: `ReactAppUrl` to `blazorapp`, and `BLAZOR_URL` (or
+`VITE_BLAZOR_URL` in local development) to `react`.
+
 ### Costs
 
 Container Apps' monthly free grant covers a low-traffic site, and the apps
@@ -84,4 +91,6 @@ dotnet test Resume.sln
 ## Project layout
 
 See `docs/superpowers/specs/2026-08-22-resume-app-design.md` for the full
-design spec.
+design spec, and
+`docs/superpowers/specs/2026-09-05-about-page-and-footer-design.md` for the
+About page and site footer.

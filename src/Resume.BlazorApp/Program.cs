@@ -57,6 +57,18 @@ app.UseAntiforgery();
 app.MapDefaultEndpoints();
 app.MapReverseProxy();
 
+// The About page's link to the React UI. About.razor renders under
+// InteractiveAuto and so may execute in WebAssembly, where the server's
+// configuration is not available -- the page links to this path and the host
+// resolves the address here instead.
+app.MapGet("/switch-ui", (IConfiguration configuration) =>
+{
+    var reactAppUrl = configuration["ReactAppUrl"];
+    return string.IsNullOrWhiteSpace(reactAppUrl)
+        ? Results.NotFound()
+        : Results.Redirect(reactAppUrl);
+});
+
 app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode()

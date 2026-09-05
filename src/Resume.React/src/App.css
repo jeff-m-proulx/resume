@@ -172,7 +172,13 @@
    a short viewport. The wrapper repeats .resume-page's width and side padding
    so the footer's edges line up with the content above it. */
 .resume-footer-container {
-  max-width: 800px;
+  /* #root is a column flexbox in the React app, where an auto cross-axis margin
+     would otherwise shrink this to its content. An explicit width plus
+     border-box sizing keeps it at the same 832px outer width as .resume-page,
+     whose 800px content box plus 1rem padding this matches. */
+  width: 100%;
+  box-sizing: border-box;
+  max-width: 832px;
   margin: 0 auto;
   padding: 0 1rem 1rem;
 }
@@ -272,6 +278,19 @@
 
 .about-page__switch p {
   margin: 0 0 0.5rem;
+}
+
+/* index.css swaps in a dark page background, and the navy these headings share
+   with the resume's section headers is unreadable against it. Every other use of
+   that navy sits on its own light surface, so this is the only place that needs
+   a dark-mode value. The Blazor stylesheet has no counterpart because that app
+   ships no dark palette. */
+@media (prefers-color-scheme: dark) {
+  .about-page h1,
+  .about-section h2,
+  .about-page__back {
+    color: #8ab0d8;
+  }
 }
 
 /* A stuck header eats vertical space, so tighten it on short/narrow screens. */

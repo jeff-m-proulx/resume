@@ -210,7 +210,13 @@ h1:focus {
    a short viewport. The wrapper repeats .resume-page's width and side padding
    so the footer's edges line up with the content above it. */
 .resume-footer-container {
-    max-width: 800px;
+    /* #root is a column flexbox in the React app, where an auto cross-axis margin
+       would otherwise shrink this to its content. An explicit width plus
+       border-box sizing keeps it at the same 832px outer width as .resume-page,
+       whose 800px content box plus 1rem padding this matches. */
+    width: 100%;
+    box-sizing: border-box;
+    max-width: 832px;
     margin: 0 auto;
     padding: 0 1rem 1rem;
 }

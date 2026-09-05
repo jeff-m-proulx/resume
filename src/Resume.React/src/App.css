@@ -294,8 +294,11 @@
    a dark-mode value. The Blazor stylesheet has no counterpart because that app
    ships no dark palette. */
 @media (prefers-color-scheme: dark) {
+  /* The planned-work panel keeps its light amber background in both themes, so
+     its heading keeps the dark navy set in the shared block above -- matching
+     it here would leave it at about 2.1:1 on that amber. */
   .about-page h1,
-  .about-section h2,
+  .about-section:not(.about-section--planned) h2,
   .about-page__back {
     color: #8ab0d8;
   }

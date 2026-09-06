@@ -23,6 +23,11 @@ server {
         set $api_upstream ${API_URL};
         proxy_pass $api_upstream;
 
+        # A variable upstream leaves proxy_ssl_server_name off, so nginx sends
+        # no SNI. Container Apps' ingress routes by SNI and closes the
+        # handshake without it, which surfaces as a 502.
+        proxy_ssl_server_name on;
+
         proxy_http_version 1.1;
         proxy_set_header   Host              $proxy_host;
         proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;

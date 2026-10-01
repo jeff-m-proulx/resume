@@ -1,0 +1,62 @@
+name: Deploy to Azure
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# One deployment at a time: a merge that lands mid-deploy queues behind it
+# rather than racing it.
+concurrency:
+  group: deploy-azure
+  cancel-in-progress: false
+
+permissions:
+  id-token: write # exchanged for an Azure token via the federated credential
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+      - run: dotnet test Resume.sln
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    # Set by `azd pipeline config`. The connection string is needed twice
+    # because azd's two stages read it from different places: provision from
+    # AZURE_RESUMEDB, deploy from the infra.parameters in the environment
+    # config.
+    env:
+      AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      AZURE_ENV_NAME: ${{ vars.AZURE_ENV_NAME }}
+      AZURE_LOCATION: ${{ vars.AZURE_LOCATION }}
+      AZD_INITIAL_ENVIRONMENT_CONFIG: ${{ secrets.AZD_INITIAL_ENVIRONMENT_CONFIG }}
+      AZURE_RESUMEDB: ${{ secrets.AZURE_RESUMEDB }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+      - uses: Azure/setup-azd@v2
+
+      - name: Log in to Azure
+        run: >
+          azd auth login
+          --client-id "$AZURE_CLIENT_ID"
+          --federated-credential-provider github
+          --tenant-id "$AZURE_TENANT_ID"
+
+      # The runner starts without the gitignored .azure/ folder, so provision
+      # runs first to recover the environment's outputs (registry, managed
+      # identity, ...) that deploy needs. Against unchanged infrastructure it
+      # is a no-op.
+      - run: azd provision --no-prompt
+      - run: azd deploy --no-prompt

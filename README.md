@@ -78,9 +78,18 @@ supplies both addresses: `ReactAppUrl` to `blazorapp`, and `BLAZOR_URL` (or
 
 ### Costs
 
-Container Apps' monthly free grant covers a low-traffic site, and the apps
-scale to zero. The container registry (~$5/month) is the main standing cost;
-Neon's free tier covers the database.
+Container Apps' monthly free grant covers a low-traffic site's active usage,
+but not replicas kept warm around the clock: Azure bills an idle replica too,
+and three of them cost ~$35/month. azd's generated Container App templates pin
+`minReplicas: 1`, so the AppHost carries its own copies in
+`src/Resume.AppHost/infra/*.tmpl.yaml` with `minReplicas: 0`. azd picks those
+up in place of its defaults; the trade-off is a cold start of a few seconds on
+the first request after a quiet spell. Regenerating them with
+`azd infra generate` resets the value to 1.
+
+What remains is the container registry (~$5/month) and the Aspire dashboard
+that azd adds to the environment (~$3.50/month). Neon's free tier covers the
+database.
 
 ## Running tests
 
